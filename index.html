@@ -50,21 +50,7 @@
       linear-gradient(180deg, var(--char) 0%, #0e0b08 100%);
     border-bottom:3px solid var(--line);
   }
-  .eyebrow{
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    font-size:11.5px;
-    font-weight:700;
-    letter-spacing:1.5px;
-    color:var(--flame);
-    margin-bottom:16px;
-  }
-  .eyebrow::before, .eyebrow::after{
-    content:"";
-    width:20px; height:1px;
-    background:var(--line);
-  }
+  .hero-spacer{height:8px;}
   .brand{
     font-family:'Baloo 2', 'Vazirmatn', sans-serif;
     font-weight:800;
@@ -106,6 +92,52 @@
     transition:border-color .15s, background .15s;
   }
   .pill:active{background:rgba(242,183,5,0.08);}
+
+  /* ===== menu search ===== */
+  .menu-search-wrap{
+    position:relative;
+    max-width:680px;
+    margin:16px auto 0;
+    padding:0 16px;
+  }
+  .menu-search-input{
+    width:100%;
+    background:var(--ticket);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:13px 42px 13px 16px;
+    color:var(--smoke);
+    font-family:'Vazirmatn',sans-serif;
+    font-size:14px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  .menu-search-input:focus{border-color:var(--flame);}
+  .menu-search-icon{
+    position:absolute;
+    right:30px; top:50%;
+    transform:translateY(-50%);
+    color:var(--smoke-dim);
+    font-size:14px;
+    pointer-events:none;
+  }
+  .menu-search-clear{
+    position:absolute;
+    left:26px; top:50%;
+    transform:translateY(-50%);
+    background:none; border:none;
+    color:var(--smoke-dim);
+    font-size:14px;
+    cursor:pointer;
+    display:none;
+  }
+  .menu-search-clear.show{display:block;}
+  .menu-no-results{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--smoke-dim);
+    font-size:13.5px;
+  }
 
   /* ===== category rail (sticky nav) ===== */
   .rail{
@@ -308,7 +340,7 @@
 <body>
 
 <div class="hero">
-  <div class="eyebrow">فست‌فود زغالی</div>
+  <div class="hero-spacer"></div>
   <h1 class="brand">پیتزا<span class="fa"> گیتی</span></h1>
   <div class="tagline">مستقیم از روی آتش، تا سفارش شما</div>
   <div class="hero-strip">
@@ -318,7 +350,13 @@
   </div>
 </div>
 
-<nav class="rail"><div class="rail-inner" id="rail"></div></nav>
+<div class="menu-search-wrap">
+  <input type="text" class="menu-search-input" id="menuSearchInput" placeholder="جستجوی غذا...">
+  <span class="menu-search-icon">🔍</span>
+  <button class="menu-search-clear" id="menuSearchClear">✕</button>
+</div>
+
+<nav class="rail" id="railNav"><div class="rail-inner" id="rail"></div></nav>
 
 <main class="board" id="board">
   <div class="loading"><div class="spin"></div>در حال آماده‌سازی منو...</div>
@@ -329,7 +367,7 @@
   <div class="foot-line">📍 فردوس، خیابان امام، روبه‌رو عکاسی میلاد</div>
   <div class="foot-line">☎ <a href="tel:+983273382596">32732596</a> &nbsp;·&nbsp; <a href="tel:+983273808082">32738082</a></div>
   <div class="foot-line">مدیریت: خانم خدیوی &nbsp;·&nbsp; <a href="tel:+989154988464">09154988464</a></div>
-  <a class="foot-admin" href="gheiti-menu-login.html">ورود مدیریت</a>
+  <a class="foot-admin" id="adminLoginLink" href="gheiti-menu-login.html">ورود مدیریت</a>
 </footer>
 
 <script>
@@ -393,21 +431,48 @@ const FALLBACK_DATA = {
 
 function toman(n){ return Number(n).toLocaleString('fa-IR'); }
 
+let currentMenuData = null;
+let currentMenuSearch = "";
+
+function itemMatches(item, query){
+  if(!query) return true;
+  const q = query.toLowerCase();
+  return (item.name && item.name.toLowerCase().includes(q)) || (item.desc && item.desc.toLowerCase().includes(q));
+}
+
 function renderMenu(data){
+  currentMenuData = data;
+  renderFilteredMenu();
+}
+
+function renderFilteredMenu(){
+  const data = currentMenuData;
+  const query = currentMenuSearch;
   const rail = document.getElementById('rail');
+  const railNav = document.getElementById('railNav');
   const board = document.getElementById('board');
   rail.innerHTML = ''; board.innerHTML = '';
 
+  const isSearching = query.length > 0;
+  let totalMatches = 0;
+  railNav.style.display = isSearching ? 'none' : 'block';
+
   data.categories.forEach((cat, ci) => {
-    const btn = document.createElement('button');
-    btn.className = 'rail-btn' + (ci===0 ? ' on' : '');
-    btn.textContent = cat.title;
-    btn.onclick = () => {
-      document.getElementById('sec-'+cat.id).scrollIntoView({behavior:'smooth', block:'start'});
-      document.querySelectorAll('.rail-btn').forEach(b=>b.classList.remove('on'));
-      btn.classList.add('on');
-    };
-    rail.appendChild(btn);
+    const visibleItems = cat.items.filter(item => itemMatches(item, query));
+    if(isSearching && visibleItems.length === 0) return;
+    totalMatches += visibleItems.length;
+
+    if(!isSearching){
+      const btn = document.createElement('button');
+      btn.className = 'rail-btn' + (ci===0 ? ' on' : '');
+      btn.textContent = cat.title;
+      btn.onclick = () => {
+        document.getElementById('sec-'+cat.id).scrollIntoView({behavior:'smooth', block:'start'});
+        document.querySelectorAll('.rail-btn').forEach(b=>b.classList.remove('on'));
+        btn.classList.add('on');
+      };
+      rail.appendChild(btn);
+    }
 
     const sec = document.createElement('section');
     sec.className = 'section';
@@ -422,7 +487,7 @@ function renderMenu(data){
     `;
     const list = sec.querySelector('.ticket-list');
 
-    cat.items.forEach(item => {
+    visibleItems.forEach(item => {
       const t = document.createElement('div');
       t.className = 'ticket' + (item.tag ? ' hot' : '');
       let priceHtml = '';
@@ -445,6 +510,29 @@ function renderMenu(data){
 
     board.appendChild(sec);
   });
+
+  if(isSearching && totalMatches === 0){
+    board.innerHTML = '<div class="menu-no-results">هیچ غذایی با این جستجو پیدا نشد</div>';
+  }
+}
+
+document.getElementById('menuSearchInput').addEventListener('input', function(){
+  currentMenuSearch = this.value.trim();
+  document.getElementById('menuSearchClear').classList.toggle('show', currentMenuSearch.length > 0);
+  if(currentMenuData) renderFilteredMenu();
+});
+document.getElementById('menuSearchClear').addEventListener('click', function(){
+  currentMenuSearch = "";
+  document.getElementById('menuSearchInput').value = "";
+  this.classList.remove('show');
+  if(currentMenuData) renderFilteredMenu();
+});
+
+// همیشه توکن فعلی را در لینک ورود مدیریت جاسازی کن تا هیچ دستگاهی
+// بدون رمز واقعی نتواند پنل جدید بسازد.
+const adminLoginLink = document.getElementById('adminLoginLink');
+if(adminLoginLink && JSONBLOB_ID && JSONBLOB_ID !== "PENDING_SETUP"){
+  adminLoginLink.href = `gheiti-menu-login.html?key=${encodeURIComponent(JSONBLOB_ID)}`;
 }
 
 async function loadMenu(){
