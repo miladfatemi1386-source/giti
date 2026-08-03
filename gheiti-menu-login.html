@@ -155,7 +155,7 @@ const STORAGE_KEY_NAME = "gheiti_jsonblob_id";
 // (نه ساخت پنل جدید). این مقدار را می‌توانی از «کد سایت» در پنل ادمین کپی کنی.
 const HARDCODED_JSONBLOB_ID = "PENDING_SETUP";
 const params = new URLSearchParams(window.location.search);
-const urlKey = params.get('key');
+const urlKey = params.get('019fbf11-c7b5-7264-915d-64e2224b153e');
 const savedKey = localStorage.getItem(STORAGE_KEY_NAME);
 const fallbackKey = (HARDCODED_JSONBLOB_ID && HARDCODED_JSONBLOB_ID !== "PENDING_SETUP") ? HARDCODED_JSONBLOB_ID : "";
 const blobId = urlKey || savedKey || fallbackKey || "";
