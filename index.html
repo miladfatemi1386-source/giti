@@ -369,9 +369,6 @@ const SUPABASE_KEY = "sb_publishable_6WEiBx96Ye0AAEmjkI6azw_rMJI46ac";
 const SUPABASE_TABLE = "menu_data";
 const SUPABASE_ROW_ID = 1;
 
-// ترتیب صحیح قیمت‌ها برای پیتزا
-const PRICE_ORDER = ["مینی", "یک نفره", "دو نفره", "سه نفره"];
-
 const FALLBACK_DATA = {
   categories: [
     { id:"pizza-combo", title:"پیتزا", items:[
@@ -488,16 +485,8 @@ function renderFilteredMenu(){
       t.className = 'ticket' + (item.tag ? ' hot' : '');
       let priceHtml = '';
       if(item.prices){
-        // مرتب‌سازی قیمت‌ها بر اساس ترتیب دلخواه
-        const sortedPrices = Object.entries(item.prices).sort((a,b) => {
-          const indexA = PRICE_ORDER.indexOf(a[0]);
-          const indexB = PRICE_ORDER.indexOf(b[0]);
-          // اگه کلیدی توی لیست نبود، آخرش قرار بگیره
-          if(indexA === -1) return 1;
-          if(indexB === -1) return -1;
-          return indexA - indexB;
-        });
-        priceHtml = '<div class="ticket-prices">' + sortedPrices.map(([label,price]) =>
+        // دیگه مرتب‌سازی نمیکنم - دقیقاً همون ترتیبی که توی دیتا هست رو نمایش بده
+        priceHtml = '<div class="ticket-prices">' + Object.entries(item.prices).map(([label,price]) =>
           `<span class="price-tag">${label} <b>${toman(price)}</b></span>`
         ).join('') + '</div>';
       } else if(item.single !== undefined){
