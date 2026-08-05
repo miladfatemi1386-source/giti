@@ -30,7 +30,6 @@
     *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important;}
   }
 
-  /* grain texture overlay */
   body::before{
     content:"";
     position:fixed; inset:0;
@@ -40,7 +39,6 @@
     mix-blend-mode:overlay;
   }
 
-  /* ===== Hero ===== */
   .hero{
     position:relative;
     padding:52px 20px 34px;
@@ -93,7 +91,6 @@
   }
   .pill:active{background:rgba(242,183,5,0.08);}
 
-  /* ===== menu search ===== */
   .menu-search-wrap{
     position:relative;
     max-width:680px;
@@ -139,7 +136,6 @@
     font-size:13.5px;
   }
 
-  /* ===== category rail (sticky nav) ===== */
   .rail{
     position:sticky; top:0; z-index:20;
     background:rgba(18,14,10,0.94);
@@ -171,7 +167,6 @@
     border-color:var(--ember);
   }
 
-  /* ===== Sections ===== */
   .board{max-width:680px; margin:0 auto; padding:8px 14px 70px;}
   .section{margin-top:38px; scroll-margin-top:64px;}
   .sec-head{
@@ -202,7 +197,6 @@
     align-self:center;
   }
 
-  /* ===== Ticket cards ===== */
   .ticket-list{margin-top:14px; display:flex; flex-direction:column; gap:10px;}
   .ticket{
     background:var(--ticket);
@@ -291,7 +285,6 @@
     margin-inline-start:4px;
   }
 
-  /* ===== Footer ===== */
   footer{
     position:relative;
     border-top:3px solid var(--line);
@@ -371,11 +364,13 @@
 </footer>
 
 <script>
-// اطلاعات اتصال به Supabase
 const SUPABASE_URL = "https://rwfliawxhoyozdcgpipb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_6WEiBx96Ye0AAEmjkI6azw_rMJI46ac";
 const SUPABASE_TABLE = "menu_data";
 const SUPABASE_ROW_ID = 1;
+
+// ترتیب صحیح قیمت‌ها برای پیتزا
+const PRICE_ORDER = ["مینی", "یک نفره", "دو نفره", "سه نفره"];
 
 const FALLBACK_DATA = {
   categories: [
@@ -493,7 +488,16 @@ function renderFilteredMenu(){
       t.className = 'ticket' + (item.tag ? ' hot' : '');
       let priceHtml = '';
       if(item.prices){
-        priceHtml = '<div class="ticket-prices">' + Object.entries(item.prices).map(([label,price]) =>
+        // مرتب‌سازی قیمت‌ها بر اساس ترتیب دلخواه
+        const sortedPrices = Object.entries(item.prices).sort((a,b) => {
+          const indexA = PRICE_ORDER.indexOf(a[0]);
+          const indexB = PRICE_ORDER.indexOf(b[0]);
+          // اگه کلیدی توی لیست نبود، آخرش قرار بگیره
+          if(indexA === -1) return 1;
+          if(indexB === -1) return -1;
+          return indexA - indexB;
+        });
+        priceHtml = '<div class="ticket-prices">' + sortedPrices.map(([label,price]) =>
           `<span class="price-tag">${label} <b>${toman(price)}</b></span>`
         ).join('') + '</div>';
       } else if(item.single !== undefined){
