@@ -344,8 +344,8 @@
   <h1 class="brand">پیتزا<span class="fa"> گیتی</span></h1>
   <div class="tagline">مستقیم از روی آتش، تا سفارش شما</div>
   <div class="hero-strip">
-    <a class="pill" href="tel:05632732596">☎ ۳۲۷۳۲۵۹۶</a>
-    <a class="pill" href="tel:05632738082">☎ ۳۲۷۳۸۰۸۲</a>
+    <a class="pill" href="tel:+983273382596">☎ ۳۲۷۳۲۵۹۶</a>
+    <a class="pill" href="tel:+983273808082">☎ ۳۲۷۳۸۰۸۲</a>
     <a class="pill" href="#loc">📍 فردوس، خیابان امام</a>
   </div>
 </div>
@@ -365,16 +365,17 @@
 <footer id="loc">
   <div class="foot-brand">پیتزا گیتی</div>
   <div class="foot-line">📍 فردوس، خیابان امام، روبه‌رو عکاسی میلاد</div>
-  <div class="foot-line">☎ <a href="tel:05632732596">32732596</a> &nbsp;·&nbsp; <a href="tel:05632738082">32738082</a></div>
+  <div class="foot-line">☎ <a href="tel:+983273382596">32732596</a> &nbsp;·&nbsp; <a href="tel:+983273808082">32738082</a></div>
   <div class="foot-line">مدیریت: خانم خدیوی &nbsp;·&nbsp; <a href="tel:+989154988464">09154988464</a></div>
-  <a class="foot-admin" id="adminLoginLink" href="gheiti-menu-login.html">ورود مدیریت</a>
+  <a class="foot-admin" href="gheiti-menu-login.html">ورود مدیریت</a>
 </footer>
 
 <script>
-// شناسه فضای ذخیره‌سازی — اولویت با کلید داخل آدرس (?key=)، در غیر این صورت مقدار ثابت زیر.
-const HARDCODED_JSONBLOB_ID = "019fc6dc-1829-7581-af7e-9e1ca2363bd8";
-const urlParams = new URLSearchParams(window.location.search);
-const JSONBLOB_ID = urlParams.get('key') || HARDCODED_JSONBLOB_ID;
+// اطلاعات اتصال به Supabase
+const SUPABASE_URL = "https://rwfliawxhoyozdcgpipb.supabase.co";
+const SUPABASE_KEY = "sb_publishable_6WEiBx96Ye0AAEmjkI6azw_rMJI46ac";
+const SUPABASE_TABLE = "menu_data";
+const SUPABASE_ROW_ID = 1;
 
 const FALLBACK_DATA = {
   categories: [
@@ -528,23 +529,21 @@ document.getElementById('menuSearchClear').addEventListener('click', function(){
   if(currentMenuData) renderFilteredMenu();
 });
 
-// همیشه توکن فعلی را در لینک ورود مدیریت جاسازی کن تا هیچ دستگاهی
-// بدون رمز واقعی نتواند پنل جدید بسازد.
-const adminLoginLink = document.getElementById('adminLoginLink');
-if(adminLoginLink && JSONBLOB_ID && JSONBLOB_ID !== "PENDING_SETUP"){
-  adminLoginLink.href = `gheiti-menu-login.html?key=${encodeURIComponent(JSONBLOB_ID)}`;
-}
-
 async function loadMenu(){
-  if(!JSONBLOB_ID || JSONBLOB_ID === "PENDING_SETUP"){
-    renderMenu(FALLBACK_DATA);
-    return;
-  }
   try{
-    const res = await fetch(`https://jsonblob.com/api/jsonBlob/${JSONBLOB_ID}`);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${SUPABASE_ROW_ID}&select=data`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
     if(!res.ok) throw new Error('fail');
-    const stored = await res.json();
-    renderMenu(stored.menuData || stored);
+    const rows = await res.json();
+    if(rows && rows[0] && rows[0].data && rows[0].data.categories){
+      renderMenu(rows[0].data);
+    } else {
+      renderMenu(FALLBACK_DATA);
+    }
   }catch(e){
     renderMenu(FALLBACK_DATA);
   }
