@@ -254,7 +254,7 @@
   <header>
     <div class="h-brand">پنل <span>گیتی</span></div>
     <div class="h-actions">
-    
+      <a class="icon-btn" href="index.html" target="_blank">مشاهده منو</a>
       <button class="icon-btn" onclick="logout()">خروج</button>
     </div>
   </header>
@@ -268,20 +268,7 @@
         <span id="settingsArrow">▾</span>
       </div>
       <div class="settings-body" id="settingsBody">
-        <div class="field-label" style="margin-top:10px;">لینک اختصاصی منوی سایت (همیشه آخرین تغییرات را نشان می‌دهد)</div>
-        <div class="code-box" id="menuLinkBox"></div>
-        <button class="settings-btn" type="button" onclick="copyMenuLink()" style="margin-bottom:14px;">کپی لینک منو</button>
-
-        <div class="field-label">لینک اختصاصی پنل مدیریت (برای دسترسی از دستگاه‌های دیگر)</div>
-        <div class="code-box" id="adminLinkBox"></div>
-        <button class="settings-btn" type="button" onclick="copyAdminLink()" style="margin-bottom:14px;">کپی لینک پنل</button>
-
-        <div class="field-label">کد سایت (اختیاری — برای جاسازی دائمی در index.html)</div>
-        <div class="code-box" id="siteCodeBox"></div>
-        <button class="settings-btn" type="button" onclick="copySiteCode()">کپی کد سایت</button>
-        <div class="settings-msg" id="codeMsg"></div>
-
-        <div class="field-label" style="margin-top:16px;">تغییر رمز عبور</div>
+        <div class="field-label" style="margin-top:10px;">تغییر رمز عبور</div>
         <input type="password" id="curPass" placeholder="رمز فعلی">
         <input type="password" id="newPass1" placeholder="رمز جدید">
         <input type="password" id="newPass2" placeholder="تکرار رمز جدید">
@@ -310,11 +297,10 @@
 </div>
 
 <script>
-const STORAGE_KEY_NAME = "gheiti_jsonblob_id";
-const params = new URLSearchParams(window.location.search);
-const urlKey = params.get('key');
-if(urlKey){ localStorage.setItem(STORAGE_KEY_NAME, urlKey); }
-let JSONBLOB_ID = urlKey || localStorage.getItem(STORAGE_KEY_NAME) || "";
+const SUPABASE_URL = "https://rwfliawxhoyozdcgpipb.supabase.co";
+const SUPABASE_KEY = "sb_publishable_6WEiBx96Ye0AAEmjkI6azw_rMJI46ac";
+const SUPABASE_TABLE = "menu_data";
+const SUPABASE_ROW_ID = 1;
 
 let storedRecord = null;
 let menuData = null;
@@ -375,21 +361,12 @@ const FALLBACK_DATA = {
 
 // ---------- Auth ----------
 function checkAuth(){
-  if(!JSONBLOB_ID){
-    document.getElementById('authGate').innerHTML = `
-      <div class="setup-screen">
-        <h2>پنلی یافت نشد</h2>
-        <p>هنوز پنل مدیریتی راه‌اندازی نشده. برای شروع، یک بار از صفحه ورود پنل رو بساز.</p>
-        <button onclick="window.location.href='gheiti-menu-login.html'">رفتن به صفحه ورود</button>
-      </div>`;
-    return false;
-  }
   if(sessionStorage.getItem('gheiti_admin_auth') !== 'true'){
     document.getElementById('authGate').innerHTML = `
       <div class="setup-screen">
         <h2>ورود لازم است</h2>
         <p>برای ادامه، رمز عبور پنل مدیریت را وارد کن.</p>
-        <button onclick="window.location.href='gheiti-menu-login.html?key=${encodeURIComponent(JSONBLOB_ID)}'">وارد شدن با رمز عبور</button>
+        <button onclick="window.location.href='gheiti-menu-login.html'">وارد شدن با رمز عبور</button>
       </div>`;
     return false;
   }
@@ -414,51 +391,29 @@ async function initApp(){
   showStatus('info', 'در حال بارگذاری منو...');
 
   try{
-    const res = await fetch(`https://jsonblob.com/api/jsonBlob/${JSONBLOB_ID}`);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${SUPABASE_ROW_ID}&select=*`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
     if(!res.ok) throw new Error('fetch-fail');
-    storedRecord = await res.json();
-    if(!storedRecord.menuData){ storedRecord = { password: null, menuData: storedRecord }; }
-    menuData = storedRecord.menuData;
+    const rows = await res.json();
+    if(rows && rows[0]){
+      storedRecord = rows[0];
+      menuData = (storedRecord.data && storedRecord.data.categories) ? storedRecord.data : JSON.parse(JSON.stringify(FALLBACK_DATA));
+    } else {
+      storedRecord = { id: SUPABASE_ROW_ID, password: null, data: JSON.parse(JSON.stringify(FALLBACK_DATA)) };
+      menuData = storedRecord.data;
+    }
     document.getElementById('statusBar').innerHTML = '';
     renderCategories();
   }catch(e){
     showStatus('err', 'بارگذاری از سرور ناموفق بود. نسخه پیش‌فرض نمایش داده شد — با ذخیره، اطلاعات فعلی جایگزین می‌شود.');
-    storedRecord = { password: null, menuData: JSON.parse(JSON.stringify(FALLBACK_DATA)) };
-    menuData = storedRecord.menuData;
+    storedRecord = { id: SUPABASE_ROW_ID, password: null, data: JSON.parse(JSON.stringify(FALLBACK_DATA)) };
+    menuData = storedRecord.data;
     renderCategories();
   }
-  populateCodeBoxes();
-}
-
-function populateCodeBoxes(){
-  const baseUrl = window.location.origin + window.location.pathname.replace('gheiti-menu-admin.html','');
-  const adminLink = baseUrl + `gheiti-menu-admin.html?key=${JSONBLOB_ID}`;
-  const menuLink = baseUrl + `index.html?key=${JSONBLOB_ID}`;
-  document.getElementById('adminLinkBox').textContent = adminLink;
-  document.getElementById('menuLinkBox').textContent = menuLink;
-  document.getElementById('siteCodeBox').textContent = `const HARDCODED_JSONBLOB_ID = "${JSONBLOB_ID}";`;
-}
-
-function copyMenuLink(){
-  navigator.clipboard.writeText(document.getElementById('menuLinkBox').textContent).then(()=>{
-    const msg = document.getElementById('codeMsg');
-    msg.className = 'settings-msg ok'; msg.textContent = '✓ لینک منو کپی شد';
-    setTimeout(()=>{ msg.textContent=''; }, 2200);
-  });
-}
-function copyAdminLink(){
-  navigator.clipboard.writeText(document.getElementById('adminLinkBox').textContent).then(()=>{
-    const msg = document.getElementById('codeMsg');
-    msg.className = 'settings-msg ok'; msg.textContent = '✓ لینک پنل کپی شد';
-    setTimeout(()=>{ msg.textContent=''; }, 2200);
-  });
-}
-function copySiteCode(){
-  navigator.clipboard.writeText(document.getElementById('siteCodeBox').textContent).then(()=>{
-    const msg = document.getElementById('codeMsg');
-    msg.className = 'settings-msg ok'; msg.textContent = '✓ کد کپی شد';
-    setTimeout(()=>{ msg.textContent=''; }, 2200);
-  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -504,8 +459,15 @@ async function changePassword(){
 
   storedRecord.password = p1;
   try{
-    const res = await fetch(`https://jsonblob.com/api/jsonBlob/${JSONBLOB_ID}`, {
-      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(storedRecord)
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${SUPABASE_ROW_ID}`, {
+      method:'PATCH',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ password: p1 })
     });
     if(!res.ok) throw new Error('save-fail');
     msg.className = 'settings-msg ok'; msg.textContent = '✓ رمز عبور با موفقیت تغییر کرد';
@@ -682,10 +644,17 @@ async function saveData(){
   const btn = document.getElementById('saveBtn');
   btn.disabled = true;
   btn.textContent = 'در حال ذخیره...';
-  storedRecord.menuData = menuData;
+  storedRecord.data = menuData;
   try{
-    const res = await fetch(`https://jsonblob.com/api/jsonBlob/${JSONBLOB_ID}`, {
-      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(storedRecord)
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${SUPABASE_ROW_ID}`, {
+      method:'PATCH',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ data: menuData })
     });
     if(!res.ok) throw new Error('save-fail');
     showStatus('ok', '✓ تغییرات با موفقیت ذخیره شد', true);
