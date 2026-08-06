@@ -4,12 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>پیتزا گیتی</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --char:#120e0a;
-    --char-2:#1c1611;
     --ember:#f2b705;
     --flame:#d94f04;
     --deep-red:#8a1c0f;
@@ -19,17 +17,17 @@
     --ticket:#1a140f;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
   body{
     background:var(--char);
     color:var(--smoke);
     font-family:'Vazirmatn',sans-serif;
     min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
   }
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important;}
-  }
-
   body::before{
     content:"";
     position:fixed; inset:0;
@@ -40,37 +38,25 @@
   }
 
   .hero{
-    position:relative;
-    padding:52px 20px 34px;
     text-align:center;
-    background:
-      radial-gradient(ellipse 90% 55% at 50% 105%, rgba(217,79,4,0.28), transparent 65%),
-      linear-gradient(180deg, var(--char) 0%, #0e0b08 100%);
-    border-bottom:3px solid var(--line);
+    margin-bottom:40px;
   }
-  .hero-spacer{height:8px;}
   .brand{
     font-family:'Baloo 2', 'Vazirmatn', sans-serif;
     font-weight:800;
     font-size:clamp(42px, 13vw, 68px);
     line-height:0.95;
     color:var(--ember);
-    letter-spacing:0.5px;
-    text-shadow:
-      0 1px 0 rgba(0,0,0,0.5),
-      0 0 34px rgba(242,183,5,0.22);
-    position:relative;
-    display:inline-block;
+    text-shadow:0 0 34px rgba(242,183,5,0.22);
   }
   .brand .fa{color:var(--flame);}
   .tagline{
     margin-top:12px;
     color:var(--smoke-dim);
     font-size:13.5px;
-    letter-spacing:0.3px;
   }
   .hero-strip{
-    margin-top:24px;
+    margin-top:20px;
     display:flex;
     justify-content:center;
     flex-wrap:wrap;
@@ -87,368 +73,61 @@
     display:flex;
     align-items:center;
     gap:6px;
-    transition:border-color .15s, background .15s;
   }
-  .pill:active{background:rgba(242,183,5,0.08);}
 
-  /* منوی بالایی با جستجو و دکمه بروزرسانی */
-  .menu-toolbar{
-    max-width:680px;
-    margin:16px auto 0;
-    padding:0 16px;
-    display:flex;
-    gap:8px;
-    align-items:center;
-  }
-  .menu-search-wrap{
-    position:relative;
-    flex:1;
-  }
-  .menu-search-input{
+  .menu-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    max-width:400px;
     width:100%;
+  }
+  .menu-card{
     background:var(--ticket);
     border:1px solid var(--line);
-    border-radius:8px;
-    padding:13px 42px 13px 16px;
-    color:var(--smoke);
-    font-family:'Vazirmatn',sans-serif;
-    font-size:14px;
-    outline:none;
-    transition:border-color .15s;
-  }
-  .menu-search-input:focus{border-color:var(--flame);}
-  .menu-search-icon{
-    position:absolute;
-    right:30px; top:50%;
-    transform:translateY(-50%);
-    color:var(--smoke-dim);
-    font-size:14px;
-    pointer-events:none;
-  }
-  .menu-search-clear{
-    position:absolute;
-    left:26px; top:50%;
-    transform:translateY(-50%);
-    background:none; border:none;
-    color:var(--smoke-dim);
-    font-size:14px;
-    cursor:pointer;
-    display:none;
-  }
-  .menu-search-clear.show{display:block;}
-
-  /* دکمه بروزرسانی */
-  .refresh-btn{
-    background:var(--ticket);
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:11px 14px;
-    color:var(--smoke-dim);
-    font-size:18px;
-    cursor:pointer;
-    transition:all .15s;
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    line-height:1;
-  }
-  .refresh-btn:hover{
-    border-color:var(--ember);
-    color:var(--ember);
-  }
-  .refresh-btn.spinning{
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin{
-    to{transform:rotate(360deg);}
-  }
-
-  .menu-no-results{
+    border-radius:12px;
+    padding:30px 20px;
     text-align:center;
-    padding:50px 20px;
-    color:var(--smoke-dim);
-    font-size:13.5px;
-  }
-
-  .rail{
-    position:sticky; top:0; z-index:20;
-    background:rgba(18,14,10,0.94);
-    backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line);
-    padding:10px 0;
-    overflow-x:auto;
-    white-space:nowrap;
-    scrollbar-width:none;
-  }
-  .rail::-webkit-scrollbar{display:none;}
-  .rail-inner{display:flex; gap:6px; padding:0 16px;}
-  .rail-btn{
-    flex:0 0 auto;
-    font-family:'Vazirmatn',sans-serif;
-    font-weight:700;
-    font-size:13px;
-    color:var(--smoke-dim);
-    background:transparent;
-    border:1px solid var(--line);
-    padding:8px 15px;
-    border-radius:100px;
+    text-decoration:none;
+    color:var(--smoke);
+    transition:all .2s;
     cursor:pointer;
-    transition:all .15s;
   }
-  .rail-btn.on{
-    color:var(--char);
-    background:var(--ember);
+  .menu-card:active{
+    transform:scale(0.96);
     border-color:var(--ember);
   }
-
-  .board{max-width:680px; margin:0 auto; padding:8px 14px 70px;}
-  .section{margin-top:38px; scroll-margin-top:64px;}
-  .sec-head{
-    display:flex;
-    align-items:baseline;
-    gap:10px;
-    margin-bottom:4px;
-    padding:0 4px;
+  .menu-card .icon{
+    font-size:36px;
+    margin-bottom:10px;
+    display:block;
   }
-  .sec-num{
+  .menu-card .name{
     font-family:'Baloo 2', sans-serif;
     font-weight:700;
-    font-size:13px;
-    color:var(--flame);
-    opacity:0.8;
-  }
-  .sec-title{
-    font-family:'Baloo 2', 'Vazirmatn', sans-serif;
-    font-weight:800;
-    font-size:24px;
-    color:var(--ember);
-    position:relative;
-  }
-  .sec-rule{
-    flex:1;
-    height:1px;
-    background:repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 11px);
-    align-self:center;
-  }
-
-  .ticket-list{margin-top:14px; display:flex; flex-direction:column; gap:10px;}
-  .ticket{
-    background:var(--ticket);
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:14px 16px;
-    position:relative;
-  }
-  .ticket::before{
-    content:"";
-    position:absolute;
-    top:0; bottom:0; right:0;
-    width:3px;
-    background:var(--line);
-  }
-  .ticket.hot::before{background:var(--flame);}
-  .ticket.hot{
-    background:linear-gradient(120deg, rgba(217,79,4,0.07), var(--ticket) 45%);
-    border-color:rgba(217,79,4,0.35);
-  }
-  .ticket-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:10px;
-  }
-  .ticket-name{
-    font-weight:700;
-    font-size:15.5px;
-    color:var(--smoke);
-    line-height:1.4;
-  }
-  .flag{
-    display:inline-flex;
-    align-items:center;
-    font-size:10px;
-    font-weight:800;
-    color:var(--char);
-    background:var(--flame);
-    padding:2px 7px;
-    border-radius:4px;
-    margin-inline-start:7px;
-    letter-spacing:0.2px;
-    vertical-align:2px;
-  }
-  .ticket-desc{
-    font-size:12.5px;
-    color:var(--smoke-dim);
-    margin-top:5px;
-    line-height:1.85;
-  }
-  .ticket-prices{
-    margin-top:11px;
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-  }
-  .price-tag{
-    background:rgba(242,183,5,0.06);
-    border:1px dashed rgba(242,183,5,0.3);
-    border-radius:6px;
-    padding:5px 10px;
-    font-size:11.5px;
-    color:var(--smoke-dim);
-    display:flex;
-    align-items:center;
-    gap:6px;
-    white-space:nowrap;
-  }
-  .price-tag b{
-    color:var(--ember);
-    font-weight:800;
-    font-size:13px;
-  }
-  .price-solo{
-    margin-top:11px;
-    font-weight:800;
     font-size:18px;
     color:var(--ember);
-    font-family:'Vazirmatn',sans-serif;
   }
-  .price-solo small{
-    color:var(--smoke-dim);
-    font-weight:500;
+  .menu-card .count{
     font-size:11.5px;
-    margin-inline-start:4px;
+    color:var(--smoke-dim);
+    margin-top:4px;
   }
 
-  footer{
-    position:relative;
-    border-top:3px solid var(--line);
-    padding:36px 20px 44px;
+  .footer{
+    margin-top:40px;
     text-align:center;
-    background:#0e0b08;
   }
-  .foot-brand{
-    font-family:'Baloo 2', sans-serif;
-    font-weight:800;
-    font-size:23px;
-    color:var(--ember);
-    margin-bottom:14px;
-  }
-  .foot-line{
-    color:var(--smoke-dim);
-    font-size:13px;
-    margin:5px 0;
-  }
-  .foot-line a{color:var(--smoke); text-decoration:none;}
-  .foot-admin{
-    display:inline-block;
-    margin-top:22px;
-    font-size:11px;
+  .footer a{
     color:#5c5148;
     text-decoration:none;
-    border:1px solid var(--line);
-    padding:6px 14px;
-    border-radius:100px;
-  }
-
-  /* اسکلتون لودینگ */
-  .skeleton-wrap{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    padding:8px 14px 70px;
-    max-width:680px;
-    margin:0 auto;
-  }
-  .skeleton-card{
-    background:var(--ticket);
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:14px 16px;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-  .skeleton-card .line{
-    height: 18px;
-    background:var(--line);
-    border-radius:4px;
-    margin-bottom:8px;
-  }
-  .skeleton-card .line.short{width:60%;}
-  .skeleton-card .line.medium{width:80%;}
-  .skeleton-card .line.full{width:100%;}
-  .skeleton-card .price-row{
-    display:flex;
-    gap:8px;
-    margin-top:10px;
-    flex-wrap:wrap;
-  }
-  .skeleton-card .price-row span{
-    height:28px;
-    width:80px;
-    background:var(--line);
-    border-radius:6px;
-  }
-  .skeleton-card .price-row span:nth-child(2){width:70px;}
-  .skeleton-card .price-row span:nth-child(3){width:90px;}
-  .skeleton-head{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:4px;
-    padding:0 4px;
-  }
-  .skeleton-head .num{
-    width:30px;
-    height:18px;
-    background:var(--line);
-    border-radius:4px;
-  }
-  .skeleton-head .title{
-    width:120px;
-    height:28px;
-    background:var(--line);
-    border-radius:4px;
-  }
-  .skeleton-head .rule{
-    flex:1;
-    height:2px;
-    background:var(--line);
-    border-radius:4px;
-  }
-  .skeleton-section{margin-top:38px;}
-
-  @keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 0.9; }
-    100% { opacity: 0.5; }
-  }
-
-  /* پیام بروزرسانی */
-  .refresh-toast{
-    position:fixed;
-    bottom:80px;
-    left:50%;
-    transform:translateX(-50%);
-    background:var(--ticket);
-    border:1px solid var(--ember);
-    border-radius:8px;
-    padding:10px 20px;
-    color:var(--ember);
-    font-size:13px;
-    z-index:50;
-    opacity:0;
-    transition:opacity 0.3s;
-    pointer-events:none;
-  }
-  .refresh-toast.show{
-    opacity:1;
+    font-size:12px;
   }
 </style>
 </head>
 <body>
 
 <div class="hero">
-  <div class="hero-spacer"></div>
   <h1 class="brand">پیتزا<span class="fa"> گیتی</span></h1>
   <div class="tagline">مستقیم از روی آتش، تا سفارش شما</div>
   <div class="hero-strip">
@@ -458,339 +137,32 @@
   </div>
 </div>
 
-<div class="menu-toolbar">
-  <div class="menu-search-wrap">
-    <input type="text" class="menu-search-input" id="menuSearchInput" placeholder="جستجوی غذا...">
-    <span class="menu-search-icon">🔍</span>
-    <button class="menu-search-clear" id="menuSearchClear">✕</button>
-  </div>
-  <button class="refresh-btn" id="refreshBtn" title="بروزرسانی منو">🔄</button>
+<div class="menu-grid">
+  <a href="pizza.html" class="menu-card">
+    <span class="icon">🍕</span>
+    <span class="name">پیتزا</span>
+    <span class="count">۱۵ نوع</span>
+  </a>
+  <a href="sandwich.html" class="menu-card">
+    <span class="icon">🥪</span>
+    <span class="name">ساندویچ</span>
+    <span class="count">۱۴ نوع</span>
+  </a>
+  <a href="prefood.html" class="menu-card">
+    <span class="icon">🍟</span>
+    <span class="name">پیش غذا</span>
+    <span class="count">۹ نوع</span>
+  </a>
+  <a href="baloon.html" class="menu-card">
+    <span class="icon">🍽️</span>
+    <span class="name">بعلبکی</span>
+    <span class="count">۲ نوع</span>
+  </a>
 </div>
 
-<nav class="rail" id="railNav"><div class="rail-inner" id="rail"></div></nav>
-
-<main class="board" id="board">
-  <div class="skeleton-wrap" id="skeletonLoader">
-    <div class="skeleton-section">
-      <div class="skeleton-head">
-        <div class="num"></div>
-        <div class="title"></div>
-        <div class="rule"></div>
-      </div>
-      <div class="skeleton-card">
-        <div class="line medium"></div>
-        <div class="line full"></div>
-        <div class="price-row">
-          <span></span><span></span><span></span>
-        </div>
-      </div>
-      <div class="skeleton-card">
-        <div class="line medium"></div>
-        <div class="line full"></div>
-        <div class="price-row">
-          <span></span><span></span>
-        </div>
-      </div>
-      <div class="skeleton-card">
-        <div class="line short"></div>
-        <div class="line full"></div>
-        <div class="price-row">
-          <span></span><span></span><span></span><span></span>
-        </div>
-      </div>
-    </div>
-    <div class="skeleton-section">
-      <div class="skeleton-head">
-        <div class="num"></div>
-        <div class="title"></div>
-        <div class="rule"></div>
-      </div>
-      <div class="skeleton-card">
-        <div class="line medium"></div>
-        <div class="line full"></div>
-        <div class="price-row">
-          <span></span><span></span>
-        </div>
-      </div>
-      <div class="skeleton-card">
-        <div class="line short"></div>
-        <div class="line full"></div>
-        <div class="price-row">
-          <span></span><span></span><span></span>
-        </div>
-      </div>
-    </div>
-  </div>
-</main>
-
-<div class="refresh-toast" id="refreshToast">✅ منو بروزرسانی شد</div>
-
-<footer id="loc">
-  <div class="foot-brand">پیتزا گیتی</div>
-  <div class="foot-line">📍 فردوس، خیابان امام، روبه‌رو عکاسی میلاد</div>
-  <div class="foot-line">☎ <a href="tel:05632732596">32732596</a> &nbsp;·&nbsp; <a href="tel:05632738082">32738082</a></div>
-  <div class="foot-line">مدیریت: خانم خدیوی &nbsp;·&nbsp; <a href="tel:+989154988464">09154988464</a></div>
-  <a class="foot-admin" href="gheiti-menu-login.html">ورود مدیریت</a>
-</footer>
-
-<script>
-const SUPABASE_URL = "https://rwfliawxhoyozdcgpipb.supabase.co";
-const SUPABASE_KEY = "sb_publishable_6WEiBx96Ye0AAEmjkI6azw_rMJI46ac";
-const SUPABASE_TABLE = "menu_data";
-const SUPABASE_ROW_ID = 1;
-
-function normalizePrices(prices){
-  if(!prices) return [];
-  if(Array.isArray(prices)) return prices;
-  return Object.entries(prices).map(([label, price]) => ({ label, price }));
-}
-
-function normalizeMenuData(data){
-  if(!data || !data.categories) return data;
-  data.categories.forEach(cat => {
-    if(cat.items){
-      cat.items.forEach(item => {
-        if(item.prices && !Array.isArray(item.prices)){
-          item.prices = normalizePrices(item.prices);
-        }
-      });
-    }
-  });
-  return data;
-}
-
-const FALLBACK_DATA = normalizeMenuData({
-  categories: [
-    { id:"pizza-combo", title:"پیتزا", items:[
-      {name:"کباب ترکی مرغ", desc:"کباب ترکی مرغ + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:320000},{label:"یک نفره",price:500000},{label:"دو نفره",price:620000},{label:"سه نفره",price:740000}]},
-      {name:"کباب ترکی گوشت", desc:"کباب ترکی گوشت + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:350000},{label:"یک نفره",price:580000},{label:"دو نفره",price:700000},{label:"سه نفره",price:830000}]},
-      {name:"مخلوط", desc:"ژامبون مرغ + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:195000},{label:"یک نفره",price:305000},{label:"دو نفره",price:415000},{label:"سه نفره",price:530000}]},
-      {name:"مرغ و قارچ", desc:"مرغ مرینیت شده + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:265000},{label:"یک نفره",price:415000},{label:"دو نفره",price:550000},{label:"سه نفره",price:680000}]},
-      {name:"مخصوص", desc:"مرغ مرینیت شده + ژامبون مرغ + پنیر پیتزا + قارچ + سس مخصوص + فلفل", prices:[{label:"مینی",price:260000},{label:"یک نفره",price:410000},{label:"دو نفره",price:540000},{label:"سه نفره",price:670000}]},
-      {name:"مخصوص گیتی", desc:"ژامبون مرغ + کباب ترکی مرغ + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:330000},{label:"یک نفره",price:535000},{label:"دو نفره",price:650000},{label:"سه نفره",price:770000}]},
-      {name:"رست بیف", desc:"گوشت گوسفند رست شده + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:400000},{label:"یک نفره",price:735000},{label:"دو نفره",price:860000},{label:"سه نفره",price:980000}]},
-      {name:"ویژه سرآشپز", desc:"کباب ترکی گوشت + کباب ترکی مرغ + پپرونی + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:395000},{label:"یک نفره",price:700000},{label:"دو نفره",price:840000},{label:"سه نفره",price:960000}], tag:"ویژه"},
-      {name:"میکس کباب ترکی مرغ و گوشت", desc:"کباب ترکی گوشت + کباب ترکی مرغ + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:355000},{label:"یک نفره",price:595000},{label:"دو نفره",price:735000},{label:"سه نفره",price:840000}]},
-      {name:"پپرونی با مخلوط", desc:"ژامبون مرغ + پپرونی + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:240000},{label:"یک نفره",price:350000},{label:"دو نفره",price:455000},{label:"سه نفره",price:565000}]},
-      {name:"پپرونی با مرغ", desc:"مرغ مرینیت شده + پپرونی + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:300000},{label:"یک نفره",price:470000},{label:"دو نفره",price:600000},{label:"سه نفره",price:720000}]},
-      {name:"پپرونی با گوشت (فیلادفیا)", desc:"گوشت گوسفند رست شده + پپرونی + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:395000},{label:"یک نفره",price:695000},{label:"دو نفره",price:800000},{label:"سه نفره",price:950000}], tag:"ویژه"},
-      {name:"پپرونی با کباب ترکی مرغ", desc:"کباب ترکی مرغ + پپرونی + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:360000},{label:"یک نفره",price:560000},{label:"دو نفره",price:690000},{label:"سه نفره",price:795000}]},
-      {name:"پپرونی با کباب ترکی گوشت", desc:"کباب ترکی گوشت + پپرونی + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:390000},{label:"یک نفره",price:595000},{label:"دو نفره",price:745000},{label:"سه نفره",price:855000}]},
-      {name:"پیتزا سیب زمینی", desc:"سیب زمینی سرخ شده + پنیر پیتزا + قارچ + سس مخصوص + فلفل دلمه + ذرت + کنجد", prices:[{label:"مینی",price:290000},{label:"یک نفره",price:390000},{label:"دو نفره",price:490000},{label:"سه نفره",price:650000}]}
-    ]},
-    { id:"sandwich", title:"ساندویچ", items:[
-      {name:"کباب ترکی گوشت", desc:"کباب ترکی گوشت + کاهو + گوجه + خیارشور", prices:[{label:"ساندویچ",price:340000},{label:"با پنیر و قارچ",price:440000}]},
-      {name:"کباب ترکی مرغ", desc:"کباب ترکی مرغ + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:295000},{label:"با پنیر و قارچ",price:395000}]},
-      {name:"میکس مرغ و گوشت", desc:"کباب ترکی گوشت + کباب ترکی مرغ + کاهو + گوجه + خیارشور", prices:[{label:"ساندویچ",price:350000},{label:"با پنیر و قارچ",price:450000}]},
-      {name:"مرغ", desc:"مرغ رست شده + سس مخصوص + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:260000},{label:"با پنیر و قارچ",price:360000}]},
-      {name:"خوراک مرغ", desc:"خوراک بندری مرغ رست شده + سس مخصوص + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:205000},{label:"با پنیر و قارچ",price:305000}]},
-      {name:"کوبیده مرغ", desc:"یک سیخ کوبیده مرغ + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:210000},{label:"با پنیر و قارچ",price:310000}]},
-      {name:"کوبیده گوشت", desc:"یک سیخ کوبیده گوشت + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:260000},{label:"با پنیر و قارچ",price:360000}]},
-      {name:"همبرگر", desc:"همبرگر پاک جم + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:165000},{label:"با پنیر و قارچ",price:265000}]},
-      {name:"همبرگر گوسفندی", desc:"برگر گوسفندی + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:250000},{label:"با پنیر و قارچ",price:350000}]},
-      {name:"هات داگ", desc:"هات داگ + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:165000},{label:"با پنیر و قارچ",price:265000}]},
-      {name:"خوراک", desc:"خوراک بندری + سس مخصوص + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:165000},{label:"با پنیر و قارچ",price:265000}]},
-      {name:"استیک", desc:"استیک پاک جم + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:190000},{label:"با پنیر و قارچ",price:290000}]},
-      {name:"استیک دوبل", desc:"۲ عدد استیک پاک جم + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:260000},{label:"با پنیر و قارچ",price:360000}]},
-      {name:"استیک مرغ", desc:"استیک پاک جم + مرغ رست شده + سس مخصوص + گوجه + خیارشور + کاهو", prices:[{label:"ساندویچ",price:300000},{label:"با پنیر و قارچ",price:400000}]}
-    ]},
-    { id:"prefood", title:"پیش غذا", items:[
-      {name:"بشقاب داغ مرغ", desc:"", prices:[{label:"یک نفره",price:400000},{label:"دو نفره",price:510000}]},
-      {name:"بشقاب داغ مخلوط", desc:"", prices:[{label:"یک نفره",price:320000},{label:"دو نفره",price:430000}]},
-      {name:"بشقاب داغ گوشت", desc:"", prices:[{label:"یک نفره",price:435000},{label:"دو نفره",price:540000}]},
-      {name:"بشقاب داغ کباب ترکی مرغ", desc:"", prices:[{label:"یک نفره",price:420000},{label:"دو نفره",price:530000}]},
-      {name:"بشقاب داغ مخصوص", desc:"", prices:[{label:"یک نفره",price:380000},{label:"دو نفره",price:480000}]},
-      {name:"سیب زمینی سرخ شده", desc:"", single:200000},
-      {name:"سیب زمینی پنیری", desc:"", single:290000},
-      {name:"اشترودل", desc:"خوراک بندری مرغ رست شده + سس مخصوص + پنیر", single:120000},
-      {name:"پیراشکی", desc:"خوراک بندری مرغ رست شده + سس مخصوص + پنیر", single:60000}
-    ]},
-    { id:"baloon", title:"بعلبکی", items:[
-      {name:"پیتزا بعلبکی", desc:"کباب ترکی مرغ + قارچ + پنیر + سس مخصوص + فلفل دلمه + ذرت + کنجد", single:750000},
-      {name:"پیتزا بعلبکی میکس", desc:"کباب ترکی مرغ و گوشت + قارچ + پنیر + سس مخصوص + فلفل دلمه + ذرت + کنجد", single:850000}
-    ]}
-  ]
-});
-
-function toman(n){ return Number(n).toLocaleString('fa-IR'); }
-
-let currentMenuData = null;
-let currentMenuSearch = "";
-
-function itemMatches(item, query){
-  if(!query) return true;
-  const q = query.toLowerCase();
-  return (item.name && item.name.toLowerCase().includes(q)) || (item.desc && item.desc.toLowerCase().includes(q));
-}
-
-function renderMenu(data){
-  currentMenuData = normalizeMenuData(data);
-  document.getElementById('skeletonLoader').style.display = 'none';
-  renderFilteredMenu();
-}
-
-function renderFilteredMenu(){
-  const data = currentMenuData;
-  const query = currentMenuSearch;
-  const rail = document.getElementById('rail');
-  const railNav = document.getElementById('railNav');
-  const board = document.getElementById('board');
-  
-  const skeleton = document.getElementById('skeletonLoader');
-  if(skeleton) skeleton.style.display = 'none';
-  
-  rail.innerHTML = ''; 
-  board.innerHTML = '';
-
-  const isSearching = query.length > 0;
-  let totalMatches = 0;
-  railNav.style.display = isSearching ? 'none' : 'block';
-
-  data.categories.forEach((cat, ci) => {
-    const visibleItems = cat.items.filter(item => itemMatches(item, query));
-    if(isSearching && visibleItems.length === 0) return;
-    totalMatches += visibleItems.length;
-
-    if(!isSearching){
-      const btn = document.createElement('button');
-      btn.className = 'rail-btn' + (ci===0 ? ' on' : '');
-      btn.textContent = cat.title;
-      btn.onclick = () => {
-        document.getElementById('sec-'+cat.id).scrollIntoView({behavior:'smooth', block:'start'});
-        document.querySelectorAll('.rail-btn').forEach(b=>b.classList.remove('on'));
-        btn.classList.add('on');
-      };
-      rail.appendChild(btn);
-    }
-
-    const sec = document.createElement('section');
-    sec.className = 'section';
-    sec.id = 'sec-' + cat.id;
-    sec.innerHTML = `
-      <div class="sec-head">
-        <span class="sec-num">${String(ci+1).padStart(2,'0')}</span>
-        <span class="sec-title">${cat.title}</span>
-        <span class="sec-rule"></span>
-      </div>
-      <div class="ticket-list"></div>
-    `;
-    const list = sec.querySelector('.ticket-list');
-
-    visibleItems.forEach(item => {
-      const t = document.createElement('div');
-      t.className = 'ticket' + (item.tag ? ' hot' : '');
-      let priceHtml = '';
-      if(item.prices && Array.isArray(item.prices)){
-        priceHtml = '<div class="ticket-prices">' + item.prices.map(({label, price}) =>
-          `<span class="price-tag">${label} <b>${toman(price)}</b></span>`
-        ).join('') + '</div>';
-      } else if(item.single !== undefined){
-        priceHtml = `<div class="price-solo">${toman(item.single)}<small>تومان</small></div>`;
-      }
-      t.innerHTML = `
-        <div class="ticket-row">
-          <div class="ticket-name">${item.name}${item.tag ? `<span class="flag">${item.tag}</span>` : ''}</div>
-        </div>
-        ${item.desc ? `<div class="ticket-desc">${item.desc}</div>` : ''}
-        ${priceHtml}
-      `;
-      list.appendChild(t);
-    });
-
-    board.appendChild(sec);
-  });
-
-  if(isSearching && totalMatches === 0){
-    board.innerHTML = '<div class="menu-no-results">هیچ غذایی با این جستجو پیدا نشد</div>';
-  }
-}
-
-// دکمه بروزرسانی
-document.getElementById('refreshBtn').addEventListener('click', async function(){
-  const btn = this;
-  btn.classList.add('spinning');
-  btn.textContent = '🔄';
-  
-  // پاک کردن کش
-  localStorage.removeItem('gheiti_menu_cache');
-  
-  // گرفتن دیتا از سرور
-  try{
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${SUPABASE_ROW_ID}&select=data`, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`
-      }
-    });
-    if(!res.ok) throw new Error('fail');
-    const rows = await res.json();
-    if(rows && rows[0] && rows[0].data && rows[0].data.categories){
-      localStorage.setItem('gheiti_menu_cache', JSON.stringify(rows[0].data));
-      renderMenu(rows[0].data);
-      
-      // پیام موفقیت
-      const toast = document.getElementById('refreshToast');
-      toast.textContent = '✅ منو بروزرسانی شد';
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
-    }
-  }catch(e){
-    const toast = document.getElementById('refreshToast');
-    toast.textContent = '❌ خطا در بروزرسانی';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
-  }
-  
-  btn.classList.remove('spinning');
-  btn.textContent = '🔄';
-});
-
-document.getElementById('menuSearchInput').addEventListener('input', function(){
-  currentMenuSearch = this.value.trim();
-  document.getElementById('menuSearchClear').classList.toggle('show', currentMenuSearch.length > 0);
-  if(currentMenuData) renderFilteredMenu();
-});
-document.getElementById('menuSearchClear').addEventListener('click', function(){
-  currentMenuSearch = "";
-  document.getElementById('menuSearchInput').value = "";
-  this.classList.remove('show');
-  if(currentMenuData) renderFilteredMenu();
-});
-
-async function loadMenu(){
-  const cached = localStorage.getItem('gheiti_menu_cache');
-  let cachedData = null;
-  if(cached){
-    try{
-      cachedData = JSON.parse(cached);
-      renderMenu(cachedData);
-    }catch(e){}
-  }
-
-  try{
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${SUPABASE_ROW_ID}&select=data`, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`
-      }
-    });
-    if(!res.ok) throw new Error('fail');
-    const rows = await res.json();
-    if(rows && rows[0] && rows[0].data && rows[0].data.categories){
-      localStorage.setItem('gheiti_menu_cache', JSON.stringify(rows[0].data));
-      renderMenu(rows[0].data);
-    } else if(!cachedData) {
-      renderMenu(FALLBACK_DATA);
-    }
-  }catch(e){
-    if(!cachedData) {
-      renderMenu(FALLBACK_DATA);
-    }
-  }
-}
-
-loadMenu();
-</script>
+<div class="footer">
+  <a href="gheiti-menu-login.html">ورود مدیریت</a>
+</div>
 
 </body>
 </html>
