@@ -251,10 +251,26 @@ const SUPABASE_ROW_ID = 1;
 
 const CATEGORY_ID = "pizza-combo";
 
+// ترتیب صحیح قیمت‌ها برای پیتزا
+const PRICE_ORDER = ["مینی", "یک نفره", "دو نفره", "سه نفره"];
+
 function normalizePrices(prices){
   if(!prices) return [];
   if(Array.isArray(prices)) return prices;
-  return Object.entries(prices).map(([label, price]) => ({ label, price }));
+  
+  // تبدیل آبجکت به آرایه
+  const entries = Object.entries(prices).map(([label, price]) => ({ label, price }));
+  
+  // مرتب‌سازی بر اساس PRICE_ORDER
+  entries.sort((a, b) => {
+    const indexA = PRICE_ORDER.indexOf(a.label);
+    const indexB = PRICE_ORDER.indexOf(b.label);
+    if(indexA === -1) return 1;
+    if(indexB === -1) return -1;
+    return indexA - indexB;
+  });
+  
+  return entries;
 }
 
 function toman(n){ return Number(n).toLocaleString('fa-IR'); }
